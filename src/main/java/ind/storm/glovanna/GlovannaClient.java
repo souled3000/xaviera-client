@@ -12,16 +12,19 @@ import backtype.storm.utils.DRPCClient;
 public class GlovannaClient {
 
 	public static void main(String[] args) throws Exception {
+		//按小时统计，算法最快，粒度较下两种较粗
 		showUserHoursStatitics("1");
+		//按指定时间长度统计，算法较慢，粒度灵活，单位分钟
 		showUserMinutesStatitics("1", 30);
-
+		//此方法算出一个连续的分布区域，粒度可指定，单位分钟
 		begAContinuousArea("1", 10);
 	}
 
 	public static void showUserHoursStatitics(String userId) throws Exception {
 		Config conf = new Config();
 		conf.setDebug(true);
-		DRPCClient client = new DRPCClient("192.168.2.177", 3772);
+		DRPCClient client = new DRPCClient("123.57.47.53", 3772);
+//		DRPCClient client = new DRPCClient("192.168.2.177", 3772);
 
 		StringBuilder drpcKey = new StringBuilder();
 		for (int i = 0; i < 24; i++)
@@ -59,7 +62,8 @@ public class GlovannaClient {
 
 		Config conf = new Config();
 		conf.setDebug(true);
-		DRPCClient client = new DRPCClient("192.168.2.177", 3772);
+		DRPCClient client = new DRPCClient("123.57.47.53", 3772);
+//		DRPCClient client = new DRPCClient("192.168.2.177", 3772);
 
 		StringBuilder drpcKey = new StringBuilder();
 		for (int i = 0; i < 1440; i++)
@@ -115,8 +119,8 @@ public class GlovannaClient {
 	}
 
 	/**
-	 * 获取连续区域，连续的含义为连续的时间区域内有值
-	 * 
+	 * 获取连续区域，连续的含义为连续的时间区域内有值，可取末端区域endArea为提醒时间
+	 * 如以10分钟为步长，一天可分为144个区域，假设最高峰为第70区，从70递增，到70+n时无统计值时停止递增，就取70+n-1区的末端时间为提醒时间。
 	 * @param userId
 	 * @param step
 	 * @throws Exception
@@ -127,7 +131,8 @@ public class GlovannaClient {
 
 		Config conf = new Config();
 		conf.setDebug(true);
-		DRPCClient client = new DRPCClient("192.168.2.177", 3772);
+		DRPCClient client = new DRPCClient("123.57.47.53", 3772);
+//		DRPCClient client = new DRPCClient("192.168.2.177", 3772);
 
 		StringBuilder drpcKey = new StringBuilder();
 		for (int i = 0; i < 1440; i++)
@@ -180,9 +185,7 @@ public class GlovannaClient {
 		int startMin = ((Integer) max[0] * step) % 60;
 		int endHour = ((Integer) max[0] * step + step) / 60;
 		int endMin = ((Integer) max[0] * step + step) % 60;
-		System.out.println("The period is from " + startHour + ":" + startMin + " to " + endHour + ":" + endMin
-				+ ". The suggestion reminding time is the latter.");
-		System.out.println(max[0]);
+
 		Integer startArea = (Integer) max[0];
 		Integer endArea = (Integer) max[0];
 		while (true) {
@@ -200,7 +203,7 @@ public class GlovannaClient {
 				break;
 			}
 		}
-		System.out.println(startArea);
+
 		startHour = startArea * step / 60;
 		startMin = (startArea * step) % 60;
 		endHour = (endArea * step + step) / 60;
